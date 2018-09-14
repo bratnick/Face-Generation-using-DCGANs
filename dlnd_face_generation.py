@@ -192,7 +192,7 @@ tests.test_model_loss(model_loss)
 # ### Optimization
 # Implement `model_opt` to create the optimization operations for the GANs. Use [`tf.trainable_variables`](https://www.tensorflow.org/api_docs/python/tf/trainable_variables) to get all the trainable variables.  Filter the variables with names that are in the discriminator and generator scope names.  The function should return a tuple of (discriminator training operation, generator training operation).
 
-# In[62]:
+# In[72]:
 
 
 def model_opt(d_loss, g_loss, learning_rate, beta1):
@@ -201,8 +201,10 @@ def model_opt(d_loss, g_loss, learning_rate, beta1):
     g_vars = [var for var in t_vars if var.name.startswith('generator')]
     # Optimize
     with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
-        d_train_opt = tf.train.AdamOptimizer(learning_rate, beta1=beta1).minimize(d_loss, var_list=d_vars)
-        g_train_opt = tf.train.AdamOptimizer(learning_rate, beta1=beta1).minimize(g_loss, var_list=g_vars)
+#         d_train_opt = tf.train.AdamOptimizer(learning_rate, beta1=beta1).minimize(d_loss, var_list=d_vars)
+#         g_train_opt = tf.train.AdamOptimizer(learning_rate, beta1=beta1).minimize(g_loss, var_list=g_vars)
+        d_train_opt = tf.train.AdamOptimizer().minimize(d_loss, var_list=d_vars)
+        g_train_opt = tf.train.AdamOptimizer().minimize(g_loss, var_list=g_vars)
     return d_train_opt, g_train_opt
 
 tests.test_model_opt(model_opt, tf)
@@ -212,7 +214,7 @@ tests.test_model_opt(model_opt, tf)
 # ### Show Output
 # Use this function to show the current output of the generator during training. It will help you determine how well the GANs is training.
 
-# In[63]:
+# In[73]:
 
 
 import numpy as np
@@ -246,7 +248,7 @@ def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
 # 
 # Use the `show_generator_output` to show `generator` output while you train. Running `show_generator_output` for every batch will drastically increase training time and increase the size of the notebook.  It's recommended to print the `generator` output every 100 batches.
 
-# In[64]:
+# In[78]:
 
 
 def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, data_shape, data_image_mode):
@@ -263,7 +265,7 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
     """
     # TODO: Build Model
     steps = 0
-    show_every = 10
+    show_every = 100
     
     input_real, input_z, lr = model_inputs(data_shape[1], data_shape[2], data_shape[3], z_dim)
     d_loss, g_loss = model_loss(input_real, input_z, data_shape[3])
@@ -285,18 +287,18 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                     train_loss_g = g_loss.eval({input_z: batch_z})
                     print("Epoch {}/{}...".format(epoch_i+1, epochs),                          "Batch {}...".format(steps),                          "Discriminator Loss: {:.4f}...".format(train_loss_d),                          "Generator Loss: {:.4f}".format(train_loss_g))
     
-                if steps % 100 == 0:
+                if steps % 500 == 0:
                     show_generator_output(sess, show_n_images, input_z, data_shape[3], data_image_mode)
 
 
 # ### MNIST
 # Test your GANs architecture on MNIST.  After 2 epochs, the GANs should be able to generate images that look like handwritten digits.  Make sure the loss of the generator is lower than the loss of the discriminator or close to 0.
 
-# In[ ]:
+# In[66]:
 
 
-batch_size = 5
-z_dim = 10
+batch_size = 64
+z_dim = 100
 learning_rate = 0.01
 beta1 = 0.01
 
@@ -311,13 +313,13 @@ with tf.Graph().as_default():
 # ### CelebA
 # Run your GANs on CelebA.  It will take around 20 minutes on the average GPU to run one epoch.  You can run the whole epoch or stop when it starts to generate realistic faces.
 
-# In[ ]:
+# In[79]:
 
 
-batch_size = None
-z_dim = None
-learning_rate = None
-beta1 = None
+batch_size = 64
+z_dim = 100
+learning_rate = 0.01
+beta1 = 0.01
 
 epochs = 1
 
